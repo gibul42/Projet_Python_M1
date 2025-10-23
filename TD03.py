@@ -21,7 +21,7 @@ def corpus_redit():
     sub = reddit.subreddit('MachineLearning')
     identifiant = len(data)
     for post in sub.hot():
-        data.append([identifiant, post.selftext , "reddit"])
+        data.append([identifiant, post.selftext.replace("\n", " ") , "reddit"])
         identifiant += 1
     return data
 
