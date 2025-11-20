@@ -7,26 +7,70 @@ class Document:
         self.url = url
         self.texte = texte
         self.nb_mots = len(self.texte.split(' '))
+        self.source = None  # nouveau champ pour la provenance
 
     def get_attributes(self):
         return (self.titre, self.auteur, self.date, self.url, self.texte)
-    
+
+    def getType(self):
+        # méthode générique : sera redéfinie dans les classes filles
+        return self.source
+
     def __str__(self):
         return self.titre
-    
-class Author:
 
-    def __init__(self, nom, ndoc):
-        self.nom = nom
-        self.ndoc = ndoc
-        self.production = {}
-        
 
-    def add(self, key, value):
-        self.production[key] = value
+# Classe fille : RedditDocument
+class RedditDocument(Document):
+    def __init__(self, titre, auteur, date, url, texte, nb_commentaires):
+        super().__init__(titre, auteur, date, url, texte)
+        self.nb_commentaires = nb_commentaires
+        self.source = "Reddit"  # on définit le type directement ici
+
+    def get_nb_commentaires(self):
+        return self.nb_commentaires
+
+    def set_nb_commentaires(self, nb_commentaires):
+        self.nb_commentaires = nb_commentaires
+
+    def getType(self):
+        return self.source
 
     def __str__(self):
-        return self.nom
-    
-    def get_stat(self):
-        return len(self.production)
+        return f"[Reddit] {self.titre} ({self.nb_commentaires} commentaires)"
+
+
+# Classe fille : ArxivDocument
+class ArxivDocument(Document):
+    def __init__(self, titre, auteurs, date, url, texte):
+        super().__init__(titre, ", ".join(auteurs), date, url, texte)
+        self.auteurs = auteurs
+        self.source = "Arxiv"  # on définit le type ici
+
+    def get_auteurs(self):
+        return self.auteurs
+
+    def set_auteurs(self, auteurs):
+        self.auteurs = auteurs
+        self.auteur = ", ".join(auteurs)
+
+    def getType(self):
+        return self.source
+
+    def __str__(self):
+        return f"[Arxiv] {self.titre} – Auteurs : {', '.join(self.auteurs)}"
+
+
+from Corpus import Corpus
+
+"""# Création d’objets fictifs
+doc1 = RedditDocument("Post test Reddit", "user_test", "2025-11-06", "https://reddit.com/test", "Texte...", 12)
+doc2 = ArxivDocument("Article test Arxiv", ["Alice", "Bob"], "2025-01-01", "https://arxiv.org/abs/0000.0000", "Résumé...")
+
+# Création du corpus
+id2doc = {0: doc1, 1: doc2}
+mon_corpus = Corpus("TestCorpus", ["user_test", "Alice", "Bob"], id2doc)
+
+# Affichage avec source
+for doc in mon_corpus.id2doc.values():
+    print(f"{doc.titre} – Source : {doc.getType()}")"""
