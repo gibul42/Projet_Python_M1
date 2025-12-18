@@ -6,6 +6,7 @@ import praw
 from datetime import datetime
 from Corpus import Corpus
 from Document import RedditDocument, ArxivDocument
+from SearchEngine import SearchEngine
 
 corpus = Corpus("Machine Learning")
 
@@ -16,7 +17,7 @@ def corpus_reddit():
         user_agent='TD003'
     )
 
-    sub = reddit.subreddit("MachineLearning")
+    sub = reddit.subreddit("Machine Learning")
     for post in sub.hot(limit=20):
         texte = post.selftext.replace("\n", " ")
         doc = RedditDocument(
@@ -36,6 +37,7 @@ def corpus_arxiv():
     data = xmltodict.parse(xml.read())
 
     for entry in data["feed"]["entry"][:20]:
+        #data.append([identifiant, xml_dict['feed']["entry"][i]["summary"], "arxiv"])
         auteurs = [a["name"] for a in entry["author"]]
         doc = ArxivDocument(
             entry["title"],
@@ -46,7 +48,6 @@ def corpus_arxiv():
         )
         corpus.add_doc(doc)
 
-# ---- TD3 ----
 if not os.path.exists("textes.csv"):
     corpus_reddit()
     corpus_arxiv()
@@ -63,3 +64,6 @@ for i in range(len(df)):
 df = df[df["texte"].str.len() >= 20]
 
 big_string = " ".join(df["texte"].tolist())
+
+engine = SearchEngine(corpus)
+print(engine.search("machine ", 5))
